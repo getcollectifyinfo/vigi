@@ -9,6 +9,11 @@ export const useGameLogic = () => {
   const [gameTime, setGameTime] = useState(0); // seconds
   const [level, setLevel] = useState(LEVELS.EASY);
 
+  // Statistics State
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [caughtEvents, setCaughtEvents] = useState(0);
+  const [wrongMoves, setWrongMoves] = useState(0);
+
   // Game Object State
   const [position, setPosition] = useState(0); // 0-11
   const [shape, setShape] = useState(SHAPES[0]);
@@ -39,6 +44,8 @@ export const useGameLogic = () => {
     setIsPaused(false);
     setScore(0);
     setGameTime(0);
+    setTotalEvents(0);
+    setCaughtEvents(0);
     setLevel(LEVELS.EASY);
     setPosition(0);
     setShape(SHAPES[0]);
@@ -136,6 +143,7 @@ export const useGameLogic = () => {
            if (newShape !== shape) {
              setShape(newShape);
              lastEvents.current.SHAPE = { time: now, handled: false };
+             setTotalEvents(prev => prev + 1);
              eventTriggered = true;
            }
         } else if (eventTypeRand < 0.50) {
@@ -144,6 +152,7 @@ export const useGameLogic = () => {
            if (newColor !== color) {
              setColor(newColor);
              lastEvents.current.COLOR = { time: now, handled: false };
+             setTotalEvents(prev => prev + 1);
              eventTriggered = true;
            }
         } else if (eventTypeRand < 0.75) {
@@ -151,6 +160,7 @@ export const useGameLogic = () => {
            const newDir = direction * -1;
            setDirection(newDir);
            lastEvents.current.TURN = { time: now, handled: false };
+           setTotalEvents(prev => prev + 1);
            eventTriggered = true;
         } else {
            // JUMP
@@ -159,6 +169,7 @@ export const useGameLogic = () => {
            // Actually, jump is just moving more steps in this tick.
            // We'll handle movement below, just mark event here.
            lastEvents.current.JUMP = { time: now, handled: false };
+           setTotalEvents(prev => prev + 1);
            eventTriggered = true;
         }
 
@@ -225,26 +236,30 @@ export const useGameLogic = () => {
     const diff = now - event.time;
 
     if (event.handled) {
-      // Already handled, maybe negative points? Or ignore.
+      // Already handled, count as wrong move (double press)
+      setWrongMoves(prev => prev + 1);
       return;
     }
 
     if (diff <= settings.scoreWindows.excellent.time) {
       setScore(s => s + settings.scoreWindows.excellent.points);
       event.handled = true;
+      setCaughtEvents(prev => prev + 1);
       // Show feedback?
     } else if (diff <= settings.scoreWindows.good.time) {
       setScore(s => s + settings.scoreWindows.good.points);
       event.handled = true;
+      setCaughtEvents(prev => prev + 1);
     } else {
       // Too late, or wrong click. 
       // Prompt says "2 saniyeden sonra basma: 0 puan".
-      // Maybe penalty for wrong click?
+      // Count as wrong move
+      setWrongMoves(prev => prev + 1);
     }
   };
 
   return {
-    gameState: { isPlaying, isPaused, score, highScore, gameTime, level, position, shape, color, direction },
+    gameState: { isPlaying, isPaused, score, highScore, gameTime, level, position, shape, color, direction, totalEvents, caughtEvents, wrongMoves },
     actions: { startGame, stopGame, togglePause, handleInteraction, setSettings },
     settings
   };

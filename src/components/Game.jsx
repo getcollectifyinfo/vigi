@@ -4,7 +4,7 @@ import { useGameLogic } from '../hooks/useGameLogic';
 
 const Game = () => {
   const { gameState, actions, settings } = useGameLogic();
-  const { isPlaying, isPaused, score, highScore, gameTime, level, position, shape, color } = gameState;
+  const { isPlaying, isPaused, score, highScore, gameTime, level, position, shape, color, totalEvents, caughtEvents, wrongMoves } = gameState;
   const { startGame, stopGame, togglePause, handleInteraction, setSettings } = actions;
 
   // Calculate position
@@ -72,7 +72,11 @@ const Game = () => {
             <div className="text-xl text-yellow-400 mb-2">{level.name}</div>
             <div className="text-sm text-gray-300 mb-2">{formatTime(gameTime)}</div>
         </div>
-        <div className="text-xs text-gray-400">HIGH: {highScore}</div>
+        <div className="flex gap-4 text-xs text-gray-400">
+          <div>HIGH: {highScore}</div>
+          <div>ACC: {caughtEvents}/{totalEvents}</div>
+          <div className="text-red-400">ERR: {wrongMoves}</div>
+        </div>
       </div>
 
       {/* Settings Button (Only when not playing) */}
@@ -104,12 +108,36 @@ const Game = () => {
       {/* Start Button Overlay */}
       {!isPlaying && !showSettings && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 backdrop-blur-sm">
-          <button 
-            onClick={startGame}
-            className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95"
-          >
-            START GAME
-          </button>
+          <div className="flex flex-col items-center gap-6">
+            {totalEvents > 0 && (
+              <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 text-center animate-fade-in">
+                <h3 className="text-xl text-yellow-400 font-bold mb-2">GAME OVER</h3>
+                <div className="text-4xl font-bold mb-2">{score}</div>
+                <div className="text-sm text-gray-400 mb-4">Final Score</div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm border-t border-gray-700 pt-4">
+                  <div>
+                    <div className="text-gray-500">Events</div>
+                    <div className="text-xl font-bold">{totalEvents}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Caught</div>
+                    <div className="text-xl font-bold text-green-400">{caughtEvents}</div>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-gray-500">
+                  Accuracy: {totalEvents > 0 ? Math.round((caughtEvents / totalEvents) * 100) : 0}%
+                </div>
+              </div>
+            )}
+            
+            <button 
+              onClick={startGame}
+              className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              {totalEvents > 0 ? 'PLAY AGAIN' : 'START GAME'}
+            </button>
+          </div>
         </div>
       )}
 
