@@ -63,6 +63,10 @@ export const useGameLogic = () => {
     if (loopRef.current) clearTimeout(loopRef.current);
   };
 
+  const togglePause = () => {
+    setIsPaused(prev => !prev);
+  };
+
   // Timer for difficulty and game time
   useEffect(() => {
     if (isPlaying && !isPaused) {
@@ -204,11 +208,11 @@ export const useGameLogic = () => {
 
   // Re-bind tick only when isPlaying changes
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
       tickRef.current?.();
     }
     return () => clearTimeout(loopRef.current);
-  }, [isPlaying]);
+  }, [isPlaying, isPaused]);
 
 
   const handleInteraction = (type) => { // type: 'SHAPE', 'COLOR', 'TURN', 'JUMP'
@@ -240,8 +244,8 @@ export const useGameLogic = () => {
   };
 
   return {
-    gameState: { isPlaying, score, highScore, gameTime, level, position, shape, color, direction },
-    actions: { startGame, stopGame, handleInteraction, setSettings },
+    gameState: { isPlaying, isPaused, score, highScore, gameTime, level, position, shape, color, direction },
+    actions: { startGame, stopGame, togglePause, handleInteraction, setSettings },
     settings
   };
 };

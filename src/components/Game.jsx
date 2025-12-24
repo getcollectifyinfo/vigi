@@ -49,7 +49,7 @@ const Game = () => {
   };
 
   const handleResume = () => {
-    togglePause();
+    // Just close menu, keep game paused until bottom button is clicked
     setShowPauseMenu(false);
   };
 
@@ -66,20 +66,38 @@ const Game = () => {
   return (
     <div className="relative w-full h-screen bg-gray-900 text-white overflow-hidden select-none font-mono">
       {/* HUD */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center z-10">
-        <div className="text-4xl font-bold mb-1">{score}</div>
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center z-10 flex flex-col items-center">
+        <div className="flex items-end gap-4">
+            <div className="text-4xl font-bold mb-1">{score}</div>
+            <div className="text-xl text-yellow-400 mb-2">{level.name}</div>
+            <div className="text-sm text-gray-300 mb-2">{formatTime(gameTime)}</div>
+        </div>
         <div className="text-xs text-gray-400">HIGH: {highScore}</div>
-        <div className="mt-2 text-xl text-yellow-400">{level.name}</div>
-        <div className="text-sm">{formatTime(gameTime)}</div>
       </div>
 
-      {/* Settings Button */}
+      {/* Settings Button (Only when not playing) */}
       {!isPlaying && (
         <button 
           onClick={() => setShowSettings(!showSettings)}
           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white z-20"
         >
           ⚙️
+        </button>
+      )}
+
+      {/* Pause/Resume Button (Only when playing) */}
+      {isPlaying && (
+        <button 
+          onClick={() => {
+            if (isPaused) {
+              togglePause();
+            } else {
+              handlePause();
+            }
+          }}
+          className={`absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded text-white z-20 font-bold tracking-widest border border-gray-600 ${isPaused ? 'bg-green-600 hover:bg-green-500' : 'bg-gray-800 hover:bg-gray-700'}`}
+        >
+          {isPaused ? "RESUME" : "PAUSE"}
         </button>
       )}
 
@@ -98,7 +116,7 @@ const Game = () => {
       {/* Game Area */}
       <div className="absolute inset-0 flex items-center justify-center">
         {/* Central Marker/Orbit */}
-        <div className="w-[60%] aspect-square border-2 border-gray-800 rounded-full absolute pointer-events-none"></div>
+        {/* <div className="w-[60%] aspect-square border-2 border-gray-800 rounded-full absolute pointer-events-none"></div> */}
         
         {/* The Moving Shape */}
         <div 
@@ -150,6 +168,33 @@ const Game = () => {
         </div>
       </button>
       
+      {/* Pause Menu */}
+      {showPauseMenu && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30 backdrop-blur-sm">
+          <div className="flex flex-col gap-4 min-w-[200px]">
+            <h2 className="text-3xl font-bold text-center mb-4 text-white">PAUSED</h2>
+            <button 
+              onClick={handleResume}
+              className="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg text-white font-bold transition-colors"
+            >
+              RESUME
+            </button>
+            <button 
+              onClick={handleSettingsFromPause}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition-colors"
+            >
+              SETTINGS
+            </button>
+            <button 
+              onClick={handleQuitFromPause}
+              className="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold transition-colors"
+            >
+              QUIT GAME
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Settings Modal */}
       {showSettings && (
         <div className="absolute inset-0 bg-gray-900 z-30 p-8 overflow-y-auto">
