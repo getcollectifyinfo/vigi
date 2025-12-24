@@ -12,7 +12,7 @@ export const INITIAL_SETTINGS = {
 };
 
 export const LEVELS = {
-  EASY: { name: 'EASY', duration: 4 * 60, speedMult: 1, freqMult: 1 },
-  MEDIUM: { name: 'MEDIUM', duration: 8 * 60, speedMult: 0.7, freqMult: 1.5 }, // Faster speed (lower interval), higher freq
-  HARD: { name: 'HARD', duration: 12 * 60, speedMult: 0.4, freqMult: 2.0 },
+  EASY: { name: 'EASY', duration: 2 * 60, speedMult: 1, freqMult: 1 },
+  MEDIUM: { name: 'MEDIUM', duration: 2 * 60, speedMult: 0.83, freqMult: 1.2 }, // +20% Speed (1/1.2 approx), +20% Freq
+  HARD: { name: 'HARD', duration: 4 * 60, speedMult: 0.69, freqMult: 1.44 }, // +20% Speed on Medium (1/1.44 approx), +20% Freq on Medium
 };
